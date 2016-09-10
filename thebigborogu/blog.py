@@ -12,14 +12,11 @@ from functools import wraps
 from google.appengine.ext import ndb
 from account_func import *
 from models import User, Post
-from flask import Flask
-app = Flask(__name__)
+from thebigborogu import app
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
-# set global jinja variable 'session' to an empty dict if it doesn't exist.
-jinja_env.globals.setdefault('session', {})
 
 def requires_login(f):
     """A decorator function for checking whether a user is logged in, 
@@ -168,21 +165,33 @@ class BlogHandler(webapp2.RequestHandler):
         return user_message
 
 
-class MainPage(BlogHandler):
-    """Displays the main introduction page for The Big Borogu."""
+@app.route('/')
+def MainPage():
+    """Render the main introduction page for The Big Borogu. 
+    Returns:
+        A Flask render_template of the introduction.html page.
+    """
+    return render_template('introduction.html')
 
-    def get(self):
-        self.render('introduction.html')
+@app.route('/blog')
+def BlogFront():
+    """Render a page that lists the 10 latest posts on The Big Borogu. 
+    Returns:
+        A Flask render_template of the front.html page with latest post objects.
+    """
+    posts = ndb.gql("select * from Post order by created desc limit 10")
+    user_message = self.fetch_session_notification()
+    return render_template('front.html', posts=posts, user_message=user_message)
 
-
-class BlogFront(BlogHandler):
-    """Displays a page that lists the 10 latest posts on The Big Borogu."""
-
-    def get(self):
-        posts = ndb.gql("select * from Post order by created desc limit 10")
-        user_message = self.fetch_session_notification()
-        self.render('front.html', posts=posts, user_message=user_message)
-
+@app.route('/blog/<string:urlsafe_postkey>')
+def PostPage(urlsafe_postkey):
+    """Displays the chosen post, with functionality for liking, disliking, user
+        following, post deletion and editing (only user creator) and post commenting.
+    Args:
+        urlsafe_postkey: The unique string corresponding to the datastore post entity.
+    Returns:
+        
+    """
 
 class PostPage(BlogHandler):
     """Displays the chosen post, with functionality for liking, disliking, user
@@ -331,23 +340,21 @@ def UserPosts(user_id):
                                 category=category, item_id=item_id, item=editedItem)
 
 
-class UserPosts(BlogHandler):
-    """Displays all of a users created posts."""
+@app.route('/user/<int:user_id>/newpost/', methods=['GET', 'POST'])
+@requires_login
+def NewPost(user_id):
+    """Blog post creation page, whereby a User can create their own rich text blog post.
+    Args:
+        user_id: the unique id that relates to the current user.
+    Returns:
+        A redirect to the User's create a blog page, or /login, dependent
+        on login state of the user. If the user is not logged in, return login page. 
+    """
+    if request.method == 'POST':
+        # 
 
-    def get(self, user_id):
-        if self.user and int(self.user.key.id()) == int(user_id):
-            user_posts = Post.query_post(self.user.key).fetch()
-            # fetch all user liked/disliked posts using the User liked_post_keys string list.
-            liked_keys = [ndb.Key(urlsafe=i) for i in self.user.liked_post_keys[-10:]]
-            disliked_keys = [ndb.Key(urlsafe=i) for i in self.user.disliked_post_keys[-10:]]
-            liked_posts = ndb.get_multi(liked_keys)
-            disliked_posts = ndb.get_multi(disliked_keys)
-            followed_keys = [ndb.Key(urlsafe=i) for i in self.user.followed_user_keys[:25]]
-            followers = ndb.get_multi(followed_keys)
-            return self.render("userposts.html", user_posts=user_posts,
-                               liked_posts=liked_posts, followers=followers)
-        else:
-            self.redirect("/login")
+    else:
+        return render_template('newpost.html')
 
 
 class NewPost(BlogHandler):
