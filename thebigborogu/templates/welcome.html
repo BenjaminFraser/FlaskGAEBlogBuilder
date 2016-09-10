@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "navbar.html" %}
+
+<main>
+<div id="welcome-box" class="parallax-container valign-wrapper">
+    <div class="section">
+        <div class="container" id="welcome-title">
+            <h2 id="welcome-header" class="center text-styled-title white-text">Welcome, {{username}}!</h2>
+        </div>
+        <div class="container">
+            <br><br>
+            <div class="row center">
+                <div class="col m4">
+                    <a href="/user/{{ session['id'] }}/newpost" class="btn btn-large waves-effect waves-light blue z-depth-5" name="new_post">Create a new post</a>
+                </div>
+                <div class="col m4">
+                    <a href="/user/{{ session['id'] }}" class="btn btn-large waves-effect waves-light green z-depth-5" name="my_posts">View my posts </a>
+                </div>
+                <div class="col m4">
+                    <a href="/blog" class="btn btn-large waves-effect waves-light orange z-depth-5" name="blog_home">View top blogs </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="parallax"><img src="/static/images/signup.jpg" alt="Unsplashed background img 2"></div>
+</div>
+</main>
+
+<footer class="page-footer blue darken-2">
+  <div class="container">
+    <div class="row">
+      <div class="col l6 s12">
+        <h5 class="white-text center"><i>Join the community, and start contributing</i></h5> 
+        <hr>
+        <p class="white-text center flex-text"><a href="#" class="white-text">Home</a> &#149; <a href="#" class="white-text">About</a> &#149; <a href="#" class="white-text">FAQ's</a> &#149; <a href="#" class="white-text">Contact us</a></p>
+      </div>
+      <div class="col l2 offset-l2 s6">
+          <ul class="center">
+            <li><a href="#" class="btn waves-effect waves-light blue"><i class="fa fa-facebook"></i></a></li>
+            <li><br></li>
+            <li><a href="#" class="btn waves-effect waves-light blue"><i class="fa fa-twitter"></i></a></li>
+          </ul>
+      </div>
+      <div class="col l2 s6">
+        <ul>
+            <li><a href="#" class="btn waves-effect waves-light blue"><i class="fa fa-linkedin"></i></a></li>
+            <li><br></li>
+            <li><a href="#" class="btn waves-effect waves-light blue"><i class="fa fa-github"></i></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <div class="container center-align">
+        <i class="fa fa-comments-o" aria-hidden="true"></i> The Big Borogu &#149; Created by Benjamin Fraser
+    </div>
+  </div>
+</footer>
+{% endblock %}
