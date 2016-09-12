@@ -192,6 +192,20 @@ def PostPage(urlsafe_postkey):
     Returns:
         
     """
+    if request.method == 'GET':
+        post = ndb.Key(urlsafe=str(urlsafe_postkey)).get()
+        if not post:
+            self.error(404)
+            self.render("404_error.html")
+            return
+        # handle likes, comments and follow requests from users
+
+    if request.method == 'POST':
+        post = ndb.Key(urlsafe=str(urlsafe_postkey)).get()
+        if not post:
+            self.error(404)
+            self.render("404_error.html")
+            return
 
 class PostPage(BlogHandler):
     """Displays the chosen post, with functionality for liking, disliking, user
